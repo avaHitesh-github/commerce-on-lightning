@@ -5,7 +5,7 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { strict as assert } from 'assert';
-import { fs } from '@salesforce/core';
+import * as fs from '../../../src/lib/utils/fs';
 import { BASE_DIR } from '../../../src/lib/utils/constants/properties';
 import { StatusFileManager } from '../../../src/lib/utils/statusFileManager';
 
