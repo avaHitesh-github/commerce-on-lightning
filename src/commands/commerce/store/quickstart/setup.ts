@@ -4,13 +4,14 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { existsSync } from 'fs';
+import * as fs from 'fs';
 import * as path from 'path';
 import { SfdxCommand } from '@salesforce/command';
-import { fs, Messages, SfdxError, Org as SfdxOrg, Logger } from '@salesforce/core';
+import { Messages, SfdxError, Org as SfdxOrg, Logger } from '@salesforce/core';
 import chalk from 'chalk';
 import { AnyJson } from '@salesforce/ts-types';
 import { OutputFlags } from '@oclif/parser';
+import * as fscore from '../../../../lib/utils/fs';
 import { allFlags } from '../../../../lib/flags/commerce/all.flags';
 import { addAllowedArgs, filterFlags, modifyArgFlag } from '../../../../lib/utils/args/flagsUtils';
 import {
@@ -678,7 +679,7 @@ export class StoreQuickstartSetup extends SfdxCommand {
         }
         const buyerUsername = Object.assign(
             new BuyerUserDef(),
-            await fs.readJson(`${BUYER_USER_DEF(this.storeDir)}`)
+            await fscore.fs.readJson(`${BUYER_USER_DEF(this.storeDir)}`)
         ).username;
         this.ux.log(msgs.getMessage('quickstart.setup.makingAccountBuyerAccount'));
         const accountID = forceDataSoql(
@@ -776,7 +777,7 @@ export class StoreQuickstartSetup extends SfdxCommand {
             `/experience-bundle-package/unpackaged/experiences/${
                 this.varargs['communityExperienceBundleName'] as string
             }/config/${configName}.json`;
-        const siteConfigMetaFile = Object.assign(new StoreConfig(), await fs.readJson(siteConfigMetaFileName));
+        const siteConfigMetaFile = Object.assign(new StoreConfig(), await fscore.fs.readJson(siteConfigMetaFileName));
         siteConfigMetaFile.isAvailableToGuests = true;
         siteConfigMetaFile.authenticationType = 'AUTHENTICATED_WITH_PUBLIC_ACCESS_ENABLED';
         fs.writeFileSync(siteConfigMetaFileName, JSON.stringify(siteConfigMetaFile, null, 4));
@@ -903,7 +904,7 @@ export class StoreQuickstartSetup extends SfdxCommand {
             );
             const processMetaFile =
                 this.storeDir + '/experience-bundle-package/unpackaged/flows/Process_CommerceDiagnosticEvents.flow';
-            if (!fs.fileExistsSync(processMetaFile) && cnt === 0) {
+            if (!fscore.fs.fileExistsSync(processMetaFile) && cnt === 0) {
                 await this.statusFileManager.setValue('retrievedPackages', false);
                 await this.retrievePackages();
                 return await this.addContactPointAndDeploy(++cnt);
@@ -919,7 +920,7 @@ export class StoreQuickstartSetup extends SfdxCommand {
         }
         // Deploy Updated Store
         this.ux.log(msgs.getMessage('quickstart.setup.creatingPackageToDeployWithNewFlow'));
-        if (!existsSync(`${this.storeDir}/experience-bundle-package/unpackaged/`))
+        if (!fscore.fs.existsSync(`${this.storeDir}/experience-bundle-package/unpackaged/`))
             throw new SfdxError(
                 'Something went wrong no experience bundle ' + `${this.storeDir}/experience-bundle-package/unpackaged/`
             );

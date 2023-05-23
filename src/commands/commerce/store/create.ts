@@ -6,7 +6,7 @@
  */
 import os from 'os';
 import { flags, SfdxCommand } from '@salesforce/command';
-import { fs, Logger, Messages, Org, SfdxError } from '@salesforce/core';
+import { Logger, Messages, Org, SfdxError } from '@salesforce/core';
 import chalk from 'chalk';
 import { AnyJson } from '@salesforce/ts-types';
 import { OutputFlags } from '@oclif/parser';
@@ -29,6 +29,7 @@ import { FilesCopy } from '../files/copy';
 import { getDefinitionFile } from '../../../lib/utils/definitionFile';
 import SearchIndex from '../search/start';
 import { setApiVersion } from '../../../lib/utils/args/flagsUtils';
+import * as fs from '../../../lib/utils/fs';
 import { StoreQuickstartCreate } from './quickstart/create';
 import { StoreQuickstartSetup } from './quickstart/setup';
 import { StoreOpen } from './open';
@@ -84,6 +85,7 @@ export class StoreCreate extends SfdxCommand {
         type: flags.string({
             char: 'o',
             options: ['b2c', 'b2b'],
+            // eslint-disable-next-line @typescript-eslint/require-await
             parse: async (input) => input.toLowerCase(),
             default: 'b2c',
             description: msgs.getMessage('create.storeTypeDescription'),
@@ -269,7 +271,7 @@ export class StoreCreate extends SfdxCommand {
             msgs.getMessage('create.removingSfdxAuthFile', [this.varargs['existingBuyerAuthentication'] as string])
         );
         try {
-            fs.removeSync(this.varargs['existingBuyerAuthentication'] as string);
+            fs.fs.removeSync(this.varargs['existingBuyerAuthentication'] as string);
         } catch (e) {
             /* Don't care if it doesn't exist*/
         }
@@ -279,7 +281,7 @@ export class StoreCreate extends SfdxCommand {
         buyerUserDefTemplate.alias = (this.varargs['buyerAlias'] as string) || 'buyer';
         buyerUserDefTemplate.profileName =
             buyerUserDefTemplate.profileName + ((this.flags.type as string) === 'b2b' ? '_B2B' : '');
-        fs.writeFileSync(BUYER_USER_DEF(this.storeDir), JSON.stringify(buyerUserDefTemplate, null, 4));
+        fs.fs.writeFileSync(BUYER_USER_DEF(this.storeDir), JSON.stringify(buyerUserDefTemplate, null, 4));
         await this.createCommunity();
         this.ux.log(chalk.green.bold(msgs.getMessage('create.completedStep6')));
         this.ux.log(msgs.getMessage('create.communityNowAvailable'));
@@ -327,7 +329,7 @@ export class StoreCreate extends SfdxCommand {
         if ((await this.statusFileManager.getValue('pushedSources')) === 'true') return;
         const scratchOrgDir = mkdirSync(SCRATCH_ORG_DIR(BASE_DIR, this.devhubUsername, this.org.getUsername()));
         try {
-            fs.removeSync(scratchOrgDir + '/force-app');
+            fs.fs.removeSync(scratchOrgDir + '/force-app');
         } catch (e) {
             /* IGNORE */
         }

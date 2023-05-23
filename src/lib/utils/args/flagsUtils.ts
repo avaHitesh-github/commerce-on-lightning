@@ -123,8 +123,9 @@ export async function setApiVersion(org: Org, flags: OutputFlags<any>): Promise<
         apiVersion = config.getLocalConfig().get(CONFIG_PROP_API_VERSION).toString();
     } else if (config.getGlobalConfig()?.get(CONFIG_PROP_API_VERSION)) {
         apiVersion = config.getGlobalConfig().get(CONFIG_PROP_API_VERSION).toString();
-    } else if (config.getEnvVars()?.get(ENV_PROP_SFDX_API_VERSION)) {
-        apiVersion = config.getEnvVars().get(ENV_PROP_SFDX_API_VERSION).toString();
+    } else if (config.getEnvVars()[ENV_PROP_SFDX_API_VERSION]) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+        apiVersion = config.getEnvVars()[ENV_PROP_SFDX_API_VERSION].toString();
     } else {
         apiVersion = await org.retrieveMaxApiVersion();
     }

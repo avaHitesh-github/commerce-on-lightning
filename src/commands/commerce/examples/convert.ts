@@ -46,6 +46,7 @@ export class ExamplesConvert extends SfdxCommand {
         type: flags.string({
             char: 'o',
             options: ['b2c', 'b2b'],
+            // eslint-disable-next-line @typescript-eslint/require-await
             parse: async (input) => input.toLowerCase(),
             description: 'The type of store you want to create',
         }),

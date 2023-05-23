@@ -5,7 +5,7 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import { core } from '@salesforce/command';
+import { Connection } from '@salesforce/core';
 import { expect, test } from '@salesforce/command/lib/test';
 import { ensureJsonMap, ensureString } from '@salesforce/ts-types';
 
@@ -19,7 +19,7 @@ const ID_RESP = {
 
 describe('commerce:search:start', () => {
     test.withOrg({ username: 'test@org.com' }, true)
-        .stub(core.Connection.prototype, 'query', async () => ID_RESP)
+        .stub(Connection.prototype, 'query', async () => ID_RESP)
         .withConnectionRequest((request) => {
             const requestMap = ensureJsonMap(request);
 

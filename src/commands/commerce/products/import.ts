@@ -5,10 +5,11 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { SfdxCommand } from '@salesforce/command';
-import { fs, Messages, Org, SfdxError } from '@salesforce/core';
+import { Messages, Org, SfdxError } from '@salesforce/core';
 import chalk from 'chalk';
 import { AnyJson } from '@salesforce/ts-types';
 import { JsonCollection } from '@salesforce/ts-types/lib/types/json';
+import * as fs from '../../../lib/utils/fs';
 import { productsFlags } from '../../../lib/flags/commerce/products.flags';
 import { storeFlags } from '../../../lib/flags/commerce/store.flags';
 import { addAllowedArgs, filterFlags, modifyArgFlag } from '../../../lib/utils/args/flagsUtils';
@@ -150,9 +151,9 @@ export class ProductsImport extends SfdxCommand {
         const storeId = await StoreCreate.getStoreId(this.statusFileManager, this.flags, this.ux, this.logger);
         const templates = ['WebStorePricebooks', 'WebStoreCatalogs', 'WebStoreBuyerGroups'];
         templates.forEach((f) =>
-            fs.writeFileSync(
+            fs.fs.writeFileSync(
                 JSON_DIR(this.storeDir) + `/${f}.json`,
-                fs
+                fs.fs
                     .readFileSync(JSON_DIR() + `/${f}-template.json`)
                     .toString()
                     .replace('PutWebStoreIdHere', storeId)
@@ -165,9 +166,9 @@ export class ProductsImport extends SfdxCommand {
             this.flags,
             this.logger
         ).result.records[0].Id;
-        fs.writeFileSync(
+        fs.fs.writeFileSync(
             JSON_DIR(this.storeDir) + '/PricebookEntrys.json',
-            fs
+            fs.fs
                 .readFileSync(JSON_DIR() + '/PricebookEntrys-template.json')
                 .toString()
                 .replace('PutStandardPricebookHere', pricebook1)
@@ -181,9 +182,9 @@ export class ProductsImport extends SfdxCommand {
         ).result.records[0]['expr0'] as number;
         const newNumber = numberofbuyergroups + 1;
         const newbuyergroupname = `BUYERGROUP_FROM_QUICKSTART_${newNumber}`;
-        fs.writeFileSync(
+        fs.fs.writeFileSync(
             JSON_DIR(this.storeDir) + 'BuyerGroups.json',
-            fs
+            fs.fs
                 .readFileSync(JSON_DIR() + '/BuyerGroups-template.json')
                 .toString()
                 .replace('PutBuyerGroupHere', newbuyergroupname)
@@ -312,7 +313,7 @@ export class ProductsImport extends SfdxCommand {
             'BuyerGroups',
             'PricebookEntrys',
         ];
-        productList.forEach((file) => fs.removeSync(JSON_DIR(this.storeDir) + `/${file}.json`));
+        productList.forEach((file) => fs.fs.removeSync(JSON_DIR(this.storeDir) + `/${file}.json`));
         // Return BuyerGroup Name to be used in BuyerGroup Account mapping
         return newbuyergroupname;
     }

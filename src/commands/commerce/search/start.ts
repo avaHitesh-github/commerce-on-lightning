@@ -59,6 +59,7 @@ export default class SearchIndex extends SfdxCommand {
         });
 
         this.ux.log(`Results: ${JSON.stringify(startIndexResults)}`);
-        return startIndexResults;
+
+        return { Results: JSON.stringify(startIndexResults) };
     }
 }

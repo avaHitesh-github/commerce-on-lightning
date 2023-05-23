@@ -7,10 +7,11 @@
 import os from 'os';
 import path, { resolve } from 'path';
 import { promisify } from 'util';
-import { fs, Messages } from '@salesforce/core';
+import { Messages } from '@salesforce/core';
 import parser from 'fast-xml-parser';
 import chalk from 'chalk';
 import { ux } from 'cli-ux';
+import * as fs from './fs';
 import { BASE_DIR } from './constants/properties';
 
 Messages.importMessagesDirectory(__dirname);
@@ -20,8 +21,8 @@ const msgs = Messages.loadMessages('@salesforce/commerce', 'commerce');
 /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment */
 export function remove(filePath: string): void {
     try {
-        if (fs.lstatSync(filePath).isDirectory()) fs.removeSync(filePath);
-        else fs.unlinkSync(filePath);
+        if (fs.fs.lstatSync(filePath).isDirectory()) fs.fs.removeSync(filePath);
+        else fs.fs.unlinkSync(filePath);
     } catch (e) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         if (e.message.indexOf('no such') < 0) throw e;
@@ -29,7 +30,7 @@ export function remove(filePath: string): void {
 }
 
 export const readFileSync = (filepath: string): string =>
-    fs.readFileSync(filepath.replace('~', os.homedir())).toString();
+    fs.fs.readFileSync(filepath.replace('~', os.homedir())).toString();
 
 export function cleanName(name: string): string {
     return name.replace('@', 'AT').replace('.', 'DOT');
@@ -37,7 +38,7 @@ export function cleanName(name: string): string {
 
 export function mkdirSync(name: string): string {
     try {
-        fs.mkdirSync(name, { recursive: true });
+        fs.fs.mkdirSync(name, { recursive: true });
     } catch (e) {
         /* DO NOTHING don't care if file already exists*/
     }
@@ -46,11 +47,11 @@ export function mkdirSync(name: string): string {
 export async function copyFileWithConfirm(source: string, target: string, prompt?: boolean): Promise<void> {
     let targetFile = target;
     // If target is a directory, a new file with the same name will be created
-    if (fs.existsSync(target))
-        if (fs.lstatSync(target).isDirectory()) targetFile = path.join(target, path.basename(source));
+    if (fs.fs.existsSync(target))
+        if (fs.fs.lstatSync(target).isDirectory()) targetFile = path.join(target, path.basename(source));
 
-    if (fs.existsSync(targetFile)) {
-        if (!fs.areFilesEqualSync(targetFile, source)) {
+    if (fs.fs.existsSync(targetFile)) {
+        if (!fs.fs.areFilesEqualSync(targetFile, source)) {
             let promptAnswer;
             ux.log(chalk.red(msgs.getMessage('files.fileDifference', [targetFile, source])));
             if (prompt === true) {
@@ -62,14 +63,14 @@ export async function copyFileWithConfirm(source: string, target: string, prompt
             }
             if (promptAnswer === true) {
                 ux.log(chalk.green(msgs.getMessage('files.overwritingFile', [targetFile, source])));
-                fs.writeFileSync(targetFile, fs.readFileSync(source));
+                fs.fs.writeFileSync(targetFile, fs.fs.readFileSync(source));
             } else if (promptAnswer === false) {
                 ux.log(chalk.green(msgs.getMessage('files.skippingFile', [targetFile])));
                 return;
             }
         }
     } else {
-        fs.writeFileSync(targetFile, fs.readFileSync(source));
+        fs.fs.writeFileSync(targetFile, fs.fs.readFileSync(source));
     }
 }
 
@@ -77,13 +78,13 @@ export async function copyFolderRecursiveWithConfirm(source: string, target: str
     let files = [];
     // Check if folder needs to be created or integrated
     const targetFolder = path.join(target, path.basename(source));
-    if (!fs.existsSync(targetFolder)) fs.mkdirSync(targetFolder);
+    if (!fs.fs.existsSync(targetFolder)) fs.fs.mkdirSync(targetFolder);
     // Copy
-    if (fs.lstatSync(source).isDirectory()) {
-        files = fs.readdirSync(source);
-        for (const file1 of files.filter((file: string) => !fs.existsSync(`${BASE_DIR}/${file}`))) {
+    if (fs.fs.lstatSync(source).isDirectory()) {
+        files = fs.fs.readdirSync(source);
+        for (const file1 of files.filter((file: string) => !fs.fs.existsSync(`${BASE_DIR}/${file}`))) {
             const curSource = path.join(source, file1);
-            if (fs.lstatSync(curSource).isDirectory())
+            if (fs.fs.lstatSync(curSource).isDirectory())
                 await copyFolderRecursiveWithConfirm(curSource, targetFolder, prompt);
             else await copyFileWithConfirm(curSource, targetFolder, prompt);
         }
@@ -93,30 +94,30 @@ export async function copyFolderRecursiveWithConfirm(source: string, target: str
 export function copyFileSync(source: string, target: string): void {
     let targetFile = target;
     // If target is a directory, a new file with the same name will be created
-    if (fs.existsSync(target))
-        if (fs.lstatSync(target).isDirectory()) targetFile = path.join(target, path.basename(source));
-    fs.writeFileSync(targetFile, fs.readFileSync(source));
+    if (fs.fs.existsSync(target))
+        if (fs.fs.lstatSync(target).isDirectory()) targetFile = path.join(target, path.basename(source));
+    fs.fs.writeFileSync(targetFile, fs.fs.readFileSync(source));
 }
 
 export function copyFolderRecursiveSync(source: string, target: string): void {
     let files = [];
     // Check if folder needs to be created or integrated
     const targetFolder = path.join(target, path.basename(source));
-    if (!fs.existsSync(targetFolder)) fs.mkdirSync(targetFolder);
+    if (!fs.fs.existsSync(targetFolder)) fs.fs.mkdirSync(targetFolder);
     // Copy
-    if (fs.lstatSync(source).isDirectory()) {
-        files = fs.readdirSync(source);
+    if (fs.fs.lstatSync(source).isDirectory()) {
+        files = fs.fs.readdirSync(source);
         files.forEach((file) => {
             const curSource = path.join(source, file);
-            if (fs.lstatSync(curSource).isDirectory()) copyFolderRecursiveSync(curSource, targetFolder);
+            if (fs.fs.lstatSync(curSource).isDirectory()) copyFolderRecursiveSync(curSource, targetFolder);
             else copyFileSync(curSource, targetFolder);
         });
     }
 }
 /* eslint-disable */
 export async function getFiles(dir) {
-    const readdir = promisify(fs.readdir);
-    const stat = promisify(fs.stat);
+    const readdir = promisify(fs.fs.readdir);
+    const stat = promisify(fs.fs.stat);
     const subdirs = await readdir(dir);
     const files = await Promise.all(
         subdirs.map(async (subdir) => {
@@ -132,7 +133,7 @@ export async function renameRecursive(renameList, target) {
     (await getFiles(target)).forEach((file) => {
         for (const renameValue of renameList)
             if (file.indexOf(renameValue.name) >= 0)
-                fs.renameSync(file, file.replace(renameValue['name'], renameValue['value']));
+                fs.fs.renameSync(file, file.replace(renameValue['name'], renameValue['value']));
     });
 }
 /* eslint-disable */

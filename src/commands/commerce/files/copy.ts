@@ -4,11 +4,12 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { fs, Messages, SfdxError } from '@salesforce/core';
+import { Messages, SfdxError } from '@salesforce/core';
 import { SfdxCommand } from '@salesforce/command';
 import { BASE_DIR } from '../../../lib/utils/constants/properties';
 import { copyFolderRecursiveWithConfirm, mkdirSync } from '../../../lib/utils/fsUtils';
 import { filesFlags } from '../../../lib/flags/commerce/files.flags';
+import * as fs from '../../../lib/utils/fs';
 
 const TOPIC = 'files';
 const CMD = `commerce:${TOPIC}:copy`;
@@ -68,9 +69,9 @@ export class FilesCopy extends SfdxCommand {
             }
             files
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                .filter((f) => !fs.existsSync(`${BASE_DIR}/${f}`))
+                .filter((f) => !fs.fs.existsSync(`${BASE_DIR}/${f}`))
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
-                .forEach((f) => fs.copyFileSync(`${sourceBaseDir}/${f}`, `${BASE_DIR}/${f}`));
+                .forEach((f) => fs.fs.copyFileSync(`${sourceBaseDir}/${f}`, `${BASE_DIR}/${f}`));
         }
     }
 }

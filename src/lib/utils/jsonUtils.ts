@@ -5,7 +5,8 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import * as os from 'os';
-import { fs, Messages, SfdxError } from '@salesforce/core';
+import { Messages, SfdxError } from '@salesforce/core';
+import * as fs from '../utils/fs';
 import { convertKabobToCamel, convertToCamelKabob } from './stringUtils';
 import { EXAMPLE_DIR } from './constants/properties';
 import { getDefinitionFile } from './definitionFile';
@@ -38,11 +39,11 @@ export function parseJSONConfigWithFlags(jsonFile, flagsConfig, flags): Promise<
         } catch (err) {
             // console.log(err); // cannot read property isOutputEnabled of undefined?
         }
-    if (!fs.existsSync(jsonFile)) throw new SfdxError(`Configuration file ${jsonFile} does not exist`);
+    if (!fs.fs.existsSync(jsonFile)) throw new SfdxError(`Configuration file ${jsonFile} does not exist`);
     const jsonObj = Object.assign(
         new DevHubConfig(),
         JSON.parse(
-            fs
+            fs.fs
                 .readFileSync(jsonFile)
                 .toString()
                 .replace('$(whoami)', os.userInfo().username)
@@ -111,7 +112,7 @@ export const parseStoreScratchDef = (flags: Record<string, unknown>): StoreScrat
     const sctDef = Object.assign(
         new StoreScratchDef(),
         JSON.parse(
-            fs
+            fs.fs
                 .readFileSync(defFile)
                 .toString()
                 .replace('$(whoami)', os.userInfo().username)
@@ -368,7 +369,7 @@ export class PickListValue {
 export class Location {
     public Id: string;
     public Name: string;
-    public LocationType: string;
+    public LocationType: any;
 }
 
 export class SfdxProject {

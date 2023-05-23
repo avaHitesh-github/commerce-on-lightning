@@ -4,8 +4,8 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { fs } from '@salesforce/core';
 import YAML from 'yaml';
+import * as fs from '../utils/fs';
 import { BASE_DIR } from './constants/properties';
 import { sleep } from './sleep';
 
@@ -50,7 +50,7 @@ export class StatusFileManager {
         this.lockFile = filePath + '.lock';
         try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            fs.unlinkSync(this.lockFile);
+            fs.fs.unlinkSync(this.lockFile);
         } catch (e) {
             /* DO NOTHING DON'T CARE IF IT DOESN'T EXIST*/
         }
@@ -145,20 +145,20 @@ export class StatusFileManager {
 
     private async save(): Promise<void> {
         // if lock file exists then wait
-        while (fs.fileExistsSync(this.lockFile)) await sleep(100);
-        fs.writeFileSync(this.lockFile, '');
-        fs.writeFileSync(this.filePath, YAML.stringify(this.status));
-        fs.unlinkSync(this.lockFile);
+        while (fs.fs.fileExistsSync(this.lockFile)) await sleep(100);
+        fs.fs.writeFileSync(this.lockFile, '');
+        fs.fs.writeFileSync(this.filePath, YAML.stringify(this.status));
+        fs.fs.unlinkSync(this.lockFile);
     }
 
     private async read(): Promise<void> {
         // if lock file exists then wait
-        while (fs.fileExistsSync(this.lockFile)) await sleep(100);
-        fs.writeFileSync(this.lockFile, '');
+        while (fs.fs.fileExistsSync(this.lockFile)) await sleep(100);
+        fs.fs.writeFileSync(this.lockFile, '');
         // if the file doesn't exist create an empty one
-        if (!fs.existsSync(this.filePath)) fs.writeFileSync(this.filePath, '');
-        this.status = YAML.parse(fs.readFileSync(this.filePath, 'utf8')) as Status;
-        fs.unlinkSync(this.lockFile);
+        if (!fs.fs.existsSync(this.filePath)) fs.fs.writeFileSync(this.filePath, '');
+        this.status = YAML.parse(fs.fs.readFileSync(this.filePath, 'utf8')) as Status;
+        fs.fs.unlinkSync(this.lockFile);
     }
 }
 

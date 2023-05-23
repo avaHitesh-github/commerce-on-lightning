@@ -4,7 +4,7 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { fs } from '@salesforce/core';
+import * as fs from '../utils/fs';
 import { ExamplesConvert } from '../../commands/commerce/examples/convert';
 import { BASE_DIR, STATUS_FILE } from './constants/properties';
 import { createSfdxProjectFile } from './definitionFile';
@@ -25,11 +25,15 @@ export class Requires {
         force = 'false'
     ): Promise<void> {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-        if (force === 'true' || !fs.existsSync(dir + '/force-app') || !fs.lstatSync(dir + '/force-app').isDirectory()) {
+        if (
+            force === 'true' ||
+            !fs.fs.existsSync(dir + '/force-app') ||
+            !fs.fs.lstatSync(dir + '/force-app').isDirectory()
+        ) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (fs.existsSync(dir + '/force-app') && !fs.lstatSync(dir + '/force-app').isDirectory())
+            if (fs.fs.existsSync(dir + '/force-app') && !fs.fs.lstatSync(dir + '/force-app').isDirectory())
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                fs.unlinkSync(dir + '/force-app'); // this shouldn't happen, but if it does...
+                fs.fs.unlinkSync(dir + '/force-app'); // this shouldn't happen, but if it does...
             createSfdxProjectFile(apiVersion, dir);
             await ExamplesConvert.run(['-d', dir, '-n', storeName, '-f', configFile, '-o', storeType]);
         }

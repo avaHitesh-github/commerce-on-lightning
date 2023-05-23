@@ -33,6 +33,7 @@ export const exampleFlags = {
     type: flags.string({
         char: 'o',
         options: ['b2c', 'b2b'],
+        // eslint-disable-next-line @typescript-eslint/require-await
         parse: async (input) => input.toLowerCase(),
         default: 'b2c',
         description: 'The type of store you want to create',
