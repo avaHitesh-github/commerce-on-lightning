@@ -46,7 +46,7 @@ export class ExamplesConvert extends SfdxCommand {
         type: flags.string({
             char: 'o',
             options: ['b2c', 'b2b'],
-            parse: (input) => input.toLowerCase(),
+            parse: async (input) => input.toLowerCase(),
             description: 'The type of store you want to create',
         }),
         'store-name': flags.string({

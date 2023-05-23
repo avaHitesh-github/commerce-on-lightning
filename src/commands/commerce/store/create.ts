@@ -84,7 +84,7 @@ export class StoreCreate extends SfdxCommand {
         type: flags.string({
             char: 'o',
             options: ['b2c', 'b2b'],
-            parse: (input) => input.toLowerCase(),
+            parse: async (input) => input.toLowerCase(),
             default: 'b2c',
             description: msgs.getMessage('create.storeTypeDescription'),
         }),
