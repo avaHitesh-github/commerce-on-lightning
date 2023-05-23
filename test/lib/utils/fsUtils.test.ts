@@ -5,7 +5,7 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { strict as assert } from 'assert';
-import { fs } from '@salesforce/core';
+import * as fs from '../../../src/lib/utils/fs';
 import { cleanName } from '../../../src/lib/utils/fsUtils';
 import { XML } from '../../../src/lib/utils/fsUtils';
 import { B_DIR } from '../../../src/lib/utils/constants/properties';
@@ -32,7 +32,9 @@ describe('fsUtils xml', () => {
         assert.equal(res, '<hi r="m">\n' + '  <bye>a</bye>\n' + '  <hello z="w" m="5">q</hello>\n' + '</hi>\n');
     });
     it('should parse package deploy template', async () => {
-        const res = XML.parse(fs.readFileSync(B_DIR + '/quickstart-config/b2c-package-deploy-template.xml').toString());
+        const res = XML.parse(
+            fs.fs.readFileSync(B_DIR + '/quickstart-config/b2c-package-deploy-template.xml').toString()
+        );
         res['Package']['types'] = res['Package']['types'].filter((t) => t['members'] !== 'ProductCatalog');
         const out = XML.stringify(res);
         assert.equal(
